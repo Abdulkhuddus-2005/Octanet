@@ -1,0 +1,118 @@
+import java.util.*;
+import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class AtmInterface{
+    private static List<String> transactionHistory = new ArrayList<>();
+
+    public static void main(String[] args) {
+        try (Scanner sc = new Scanner(System.in)) {
+            Set<String> registeredUsernames = new HashSet<>(Arrays.asList("22122004", "26052005", "10051972"));
+            int[] balance = {10000000}; 
+            String pin = "7214";
+            String accountNumber, password;
+
+            System.out.print("Enter account number: ");
+            accountNumber = sc.nextLine();
+            System.out.print("Enter Password: ");
+            password = sc.nextLine();
+
+            if (registeredUsernames.contains(accountNumber) && password.equals(pin)) {
+                System.out.println("Authentication Successful");
+                logTransaction(accountNumber, "Authentication Successful");
+
+                while (true) {
+                    System.out.println("|---------------------------------------------------------------------------------|");
+                    System.out.println("                  " + "Automated Teller Machine" + "                                      ");
+                    System.out.println("|---------------------------------------------------------------------------------|");
+                    System.out.println("Choose 1 for withdraw");
+                    System.out.println("Choose 2 for Deposit");
+                    System.out.println("Choose 3 for Check Balance");
+                    System.out.println("Choose 4 for Transaction History");
+                    System.out.println("Choose 5 to Exit");
+                    System.out.println("Choose the operation you want to perform");
+                    int choice = sc.nextInt();
+
+                    switch (choice) {
+                        case 1:
+                            withdrawal(sc, balance, accountNumber);
+                            break;
+                        case 2:
+                            deposition(sc, balance, accountNumber);
+                            break;
+                        case 3:
+                            checkBalance(balance, accountNumber);
+                            break;
+                        case 4:
+                            displayTransactionHistory();
+                            break;
+                        case 5:
+                            System.out.println("Thank you for using the ATM. Goodbye!");
+                            System.out.println("------------------------------------------------------------------------------");
+                            System.out.println("|" + "                                   " + "Come Again" + "                              " + "|");
+                            System.out.println("------------------------------------------------------------------------------");
+                            System.exit(0);
+                        default:
+                            System.out.println("Invalid choice. Please try again");
+                    }
+                }
+            } else {
+                System.out.println("Authentication Failed");
+                System.out.println("Invaild Account Number or Pin");
+
+            }
+        }
+    }
+
+    public static void withdrawal(Scanner sc, int[] balance, String accountNumber) {
+        System.out.println("Enter the amount to withdraw: ");
+        int withdraw = sc.nextInt();
+        if (withdraw > 0 && withdraw <= balance[0]) {
+            balance[0] -= withdraw;
+            System.out.println("Withdraw successful.");
+            System.out.println("Current balance: " + balance[0]);
+            logTransaction(accountNumber, "Withdraw of " + withdraw);
+        } else {
+            System.out.println("Invalid amount or insufficient funds. Please try again.");
+        }
+    }
+
+    public static void deposition(Scanner sc, int[] balance, String accountNumber) {
+        System.out.println("Enter the amount to deposit: ");
+        int deposit = sc.nextInt();
+        if (deposit > 0) {
+            balance[0] += deposit;
+            System.out.println("Deposit Successful.");
+            System.out.println("Current balance: " + balance[0]);
+            logTransaction(accountNumber, " Deposit of " + deposit);
+        } else {
+            System.out.println("Invalid amount. Please try again");
+        }
+    }
+
+    public static void checkBalance(int[] balance, String accountNumber) {
+        System.out.println("Your current Balance: " + balance[0]);
+        logTransaction(accountNumber, "Balance check");
+    }
+
+    public static void logTransaction(String accountNumber, String transaction) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        String transactionDetails = formattedDateTime + " - user: " + accountNumber + ", Transaction: " + transaction;
+        transactionHistory.add(transactionDetails);
+    }
+
+    private static void displayTransactionHistory() {
+        System.out.print("Transaction History:");
+        if (transactionHistory.isEmpty()) {
+            System.out.print("No transaction yet.");
+        } else {
+            for (String transaction : transactionHistory) {
+                System.out.println(transaction);
+            }
+        }
+    }
+}
